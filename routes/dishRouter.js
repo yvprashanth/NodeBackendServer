@@ -1,7 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
-
+const MongoClient = require('mongodb').MongoClient;
+const assert = require('assert');
+const url = 'mongodb://localhost:27017/';
+const dbname = 'conFusion';
 const dishRouter = express.Router();
 
 dishRouter.use(bodyParser.json());
@@ -12,7 +14,27 @@ dishRouter.route('/')
     res.setHeader('Content-Type', 'text/plain');
     next();
 })
-.get((req,res,next) => {
+.get((req, res, next) => {
+    MongoClient.connect(url, (err, client) => {
+        assert.equal(err,null);
+        console.log('Connected correctly to server');
+        const db = client.db(dbname);
+        const collection = db.collection("dishes");
+
+        collection.insertOne({"name": "Prashanth Pizza", "description": "test"},
+        (err, result) => {
+            assert.equal(err,null);
+            console.log("After Insert:\n");
+            console.log(result.ops);
+
+            collection.find({}).toArray((err, docs) => {
+                assert.equal(err,null);
+                console.log("Found:\n");
+                console.log(docs);
+            });
+        });
+    
+    });
     res.end('Will send all the dishes to you!');
 })
 .post((req, res, next) => {
