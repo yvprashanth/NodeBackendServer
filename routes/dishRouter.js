@@ -2,7 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
+const mongoose = require('mongoose');
+
+const dboper = require('../utils/operations');
+const Dishes = require('../models/dishSchema');
 const url = 'mongodb://localhost:27017/';
+const connect = mongoose.connect(url);
+
 const dbname = 'conFusion';
 const dishRouter = express.Router();
 
@@ -15,25 +21,28 @@ dishRouter.route('/')
     next();
 })
 .get((req, res, next) => {
-    MongoClient.connect(url, (err, client) => {
-        assert.equal(err,null);
+    connect.then((db) => {
         console.log('Connected correctly to server');
-        const db = client.db(dbname);
-        const collection = db.collection("dishes");
-
-        collection.insertOne({"name": "Prashanth Pizza", "description": "test"},
-        (err, result) => {
-            assert.equal(err,null);
-            console.log("After Insert:\n");
-            console.log(result.ops);
-
-            collection.find({}).toArray((err, docs) => {
-                assert.equal(err,null);
-                console.log("Found:\n");
-                console.log(docs);
-            });
+        var newDish = Dishes({
+            name: 'Uthappizza 2',
+            description: 'test'
         });
     
+        newDish.save()
+            .then((dish) => {
+                console.log(dish);
+                return Dishes.find({});
+            })
+            // .then((dishes) => {
+            //     console.log(dishes);
+            //     return Dishes.remove({});
+            // })
+            .then(() => {
+                return mongoose.connection.close();
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     });
     res.end('Will send all the dishes to you!');
 })
