@@ -1,14 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
 const dbname = 'conFusion';
-const dboper = require('../utils/operations');
 const Dishes = require('../models/dishSchema');
 const url = 'mongodb://localhost:27017/' + dbname;
 const connect = mongoose.connect(url);
 const dishRouter = express.Router();
+const dboper = require('../utils/operations');
+const MongoClient = require('mongodb').MongoClient;
+const assert = require('assert');
+
 dishRouter.use(bodyParser.json());
 
 dishRouter.route('/')
@@ -20,31 +21,29 @@ dishRouter.route('/')
 .get((req, res, next) => {
     connect.then((db) => {
         console.log('Connected correctly to server');
-    });
-    res.end('Will send all the dishes to you!');
-})
-.post((req, res, next) => {
-    res.end('Will add the dish: ' + req.body.name + ' with details: ' + req.body.description);
-    var newDish = Dishes({
-        name: 'Uthappizza 4',
-        description: 'test'
-    });
-
-    newDish.save()
+        Dishes.create({
+            name: 'Uthapizza',
+            description: 'Test'
+        })
         .then((dish) => {
             console.log(dish);
-            return Dishes.find({});
+            return Dishes.find({}).exec();
         })
-        // .then((dishes) => {
-        //     console.log(dishes);
-        //     return Dishes.remove({});
-        // })
+        .then((dishes) => {
+            console.log(dishes);
+            // return Dishes.remove({});
+        })
         .then(() => {
             return mongoose.connection.close();
         })
         .catch((err) => {
             console.log(err);
         });
+    });
+    res.end('Will send all the dishes to you!');
+})
+.post((req, res, next) => {
+    res.end('Will add the dish: ' + req.body.name + ' with details: ' + req.body.description);
 })
 .put((req, res, next) => {
     res.statusCode = 403;
