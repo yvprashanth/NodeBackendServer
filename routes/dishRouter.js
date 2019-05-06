@@ -26,7 +26,7 @@ dishRouter.route('/')
 .post((req, res, next) => {
     res.end('Will add the dish: ' + req.body.name + ' with details: ' + req.body.description);
     var newDish = Dishes({
-        name: 'Uthappizza 3',
+        name: 'Uthappizza 4',
         description: 'test'
     });
 
