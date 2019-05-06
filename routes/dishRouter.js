@@ -13,53 +13,16 @@ const assert = require('assert');
 dishRouter.use(bodyParser.json());
 
 dishRouter.route('/')
-.all((req,res,next) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    next();
-})
 .get((req, res, next) => {
     connect.then((db) => {
-        console.log('Connected correctly to server');
-
-        Dishes.create({
-            name: 'Uthappizza',
-            description: 'test'
-        })
-        .then((dish) => {
-            console.log(dish);
-    
-            return Dishes.findByIdAndUpdate(dish._id, {
-                $set: { description: 'Updated test'}
-            },{ 
-                new: true 
-            })
-            .exec();
-        })
-        .then((dish) => {
-            console.log(dish);
-    
-            dish.comments.push({
-                rating: 5,
-                comment: 'I\'m getting a sinking feeling!',
-                author: 'Leonardo di Carpaccio'
-            });
-    
-            return dish.save();
-        })
-        .then((dish) => {
-            console.log(dish);
-    
-            return Dishes.remove({});
-        })
-        .then(() => {
-            return mongoose.connection.close();
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+        Dishes.find({})
+        .then((dishes) => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(dishes);
+        }, (err) => next(err))
+        .catch((err) => next(err));
     });
-    res.end('Will send all the dishes to you!');
 })
 .post((req, res, next) => {
     res.end('Will add the dish: ' + req.body.name + ' with details: ' + req.body.description);
