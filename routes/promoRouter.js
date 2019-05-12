@@ -2,13 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const promoRouter = express.Router();
 
-
 const mongoose = require('mongoose');
 const dbname = 'conFusion';
 const Promotions = require('../models/promotionsSchema');
 const url = 'mongodb://localhost:27017/' + dbname;
 const connect = mongoose.connect(url);
-const dishRouter = express.Router();
 
 promoRouter.use(bodyParser.json());
 
