@@ -2,16 +2,27 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const promoRouter = express.Router();
 
+
+const mongoose = require('mongoose');
+const dbname = 'conFusion';
+const Promotions = require('../models/promotionsSchema');
+const url = 'mongodb://localhost:27017/' + dbname;
+const connect = mongoose.connect(url);
+const dishRouter = express.Router();
+
 promoRouter.use(bodyParser.json());
 
 promoRouter.route('/')
-.all((req,res,next) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    next();
-})
 .get((req,res,next) => {
-    res.end('Will send all the promotions to you!');
+    connect.then((db) => {
+        Promotions.find({})
+        .then((promotions) => {
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json');
+            res.json(promotions)
+        }, (err) => next(err))
+        .catch((err) => next(err));
+    })
 })
 .post((req, res, next) => {
     res.end('Will add the promotion: ' + req.body.name + ' with details: ' + req.body.description);
